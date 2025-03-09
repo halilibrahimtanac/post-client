@@ -8,17 +8,15 @@ function getFromRoute(route){
 
 const dataSlice = createSlice({
     name: "user",
-    initialState: { isActive: false, accessToken: localStorage.getItem("accessToken") || null, allUsers: { status: "idle", data: [], error: null }, allPosts: { status: "idle", data: [], error: null } },
+    initialState: { isAuthenticated: localStorage.getItem("accessToken") ? true : false, accessToken: localStorage.getItem("accessToken") || null, allUsers: { status: "idle", data: [], error: null }, allPosts: { status: "idle", data: [], error: null } },
     reducers: {
-        activate: (state, action) => {
-            state.isActive = action.payload
-        },
         setCredentials: (state, action) => {
             localStorage.setItem("accessToken", action.payload.accessToken);
-            state = { ...state, ...action.payload }
+            state = { ...state, ...action.payload, isAuthenticated: true };
         },
         logOut: (state, action) => {
             localStorage.removeItem("accessToken")
+            state.isAuthenticated = false;
             state.accessToken = null;
         }
     },

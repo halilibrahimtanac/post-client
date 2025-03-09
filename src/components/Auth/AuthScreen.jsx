@@ -1,14 +1,14 @@
 import { Box, Paper } from "@mui/material";
-import { useState } from "react";
 import LoginForm from "./Login";
 import SignUpForm from "./SignUp";
+import { useNavigate } from "react-router-dom";
 
-export default function AuthScreen() {
-  const [isLogin, setIsLogin] = useState(true);
+export default function AuthScreen({ form = "login" }) {
+  const navigate = useNavigate();
 
-  const toggleForm = (event) => {
+  const toggleForm = (event, route) => {
     event.preventDefault();
-    setIsLogin((prev) => !prev);
+    navigate(route);
   };
 
   return (
@@ -29,7 +29,7 @@ export default function AuthScreen() {
           width: "300px",
         }}
       >
-        {isLogin ? (
+        {form === "login" ? (
           <LoginForm onToggle={toggleForm} />
         ) : (
           <SignUpForm onToggle={toggleForm} />

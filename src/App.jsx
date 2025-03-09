@@ -1,30 +1,26 @@
 import "./App.css";
-import { useDispatch, useSelector } from "react-redux";
-import { useGetAllPostsQuery } from "./store/post/query";
-import AuthScreen from "./components/AuthScreen";
+import AuthScreen from "./components/Auth/AuthScreen";
+import { Route, Routes } from "react-router-dom";
+import PublicRoute from "./components/RouteWrapper/PublicRoute";
+import ProtectedRoute from "./components/RouteWrapper/ProtectedRoute";
+import RootRedirect from "./components/RouteWrapper/RouteRedirect";
+import PostList from "./components/Post/PostList";
+import Home from "./components/Home";
 
 function App() {
-  const dispatch = useDispatch();
-  const accessToken = useSelector((state) => state.data.accessToken);
-  const { data, isLoading, isError, isFetching, isSuccess } = useGetAllPostsQuery();
-
-  if (!accessToken) {
-    return <AuthScreen />;
-  }
-
   return (
-    <div
-      style={{
-        width: "50%",
-        display: "flex",
-        flexDirection: "column",
-        gap: 15,
-      }}
-    >
-      {isLoading && <span>Loading...</span>}
-      {isError && <span>Error!</span>}
-      {isSuccess && <span>{JSON.stringify(data)}</span>}
-    </div>
+    <Routes>
+      <Route path="/" element={<RootRedirect />} />
+
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<AuthScreen form="login"/>}/>
+        <Route path="/signup" element={<AuthScreen form="signup"/>}/>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/home" element={<Home />}/>
+      </Route>
+    </Routes>
   );
 }
 

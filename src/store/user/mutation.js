@@ -1,5 +1,5 @@
 import { api } from "../api";
-import { setCredentials } from "../slices/data";
+import { logOut, setCredentials } from "../slices/data";
 
 const userMutations = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -19,7 +19,23 @@ const userMutations = api.injectEndpoints({
         }
       },
     }),
+    logOut: builder.mutation({
+      query: () => ({
+        url: "/api/user/logout",
+        method: "GET",
+        credentials: "include",
+      }),
+      async onQueryStarted(args, { dispatch, queryFulfilled}){
+        try{
+          await queryFulfilled
+        }catch(err){
+          console.log("Logout error", err);
+        }finally {
+          dispatch(logOut())
+        }
+      }
+    })
   }),
 });
 
-export const { useLoginMutation } = userMutations;
+export const { useLoginMutation, useLogOutMutation } = userMutations;

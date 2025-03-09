@@ -1,39 +1,36 @@
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
-import { useLoginMutation } from "../store/user/mutation";
-import { useState } from "react";
 
-export default function LoginForm({ onToggle }) {
-  const [login] = useLoginMutation();
-  const [formInfos, setFormInfos] = useState({ email: "", password: "" });
-
-  const onChangeField = (field, value) => {
-    setFormInfos(prev => ({ ...prev, [field]: value }));
-  }
-
+export default function SignUpForm({ onToggle }) {
   const handleSubmit = (event) => {
     event.preventDefault();
-    if(formInfos.email && formInfos.password){
-      login(formInfos);
-    }
-    console.log(event);
+    // Add your sign-up logic here
+    console.log("Signing up...");
   };
 
   return (
     <>
       <Typography variant="h5" component="h1" align="center" gutterBottom>
-        Login
+        Sign Up
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <TextField
           margin="normal"
           required
           fullWidth
-          id="login-email"
+          id="signup-email"
           label="Email Address"
           name="email"
           autoComplete="email"
           autoFocus
-          onChange={(e) => onChangeField("email", e.target.value)}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="signup-username"
+          label="Username"
+          name="username"
+          autoComplete="username"
         />
         <TextField
           margin="normal"
@@ -42,19 +39,28 @@ export default function LoginForm({ onToggle }) {
           name="password"
           label="Password"
           type="password"
-          id="login-password"
-          autoComplete="current-password"
-          onChange={(e) => onChangeField("password", e.target.value)}
+          id="signup-password"
+          autoComplete="new-password"
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="confirmPassword"
+          label="Confirm Password"
+          type="password"
+          id="signup-confirmPassword"
+          autoComplete="new-password"
         />
         <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-          Sign In
+          Sign Up
         </Button>
       </Box>
       <Box sx={{ mt: 2, textAlign: "center" }}>
         <Typography variant="body2">
-          Don't have an account?{" "}
-          <Link href="#" onClick={onToggle}>
-            Sign Up
+          Already have an account?{" "}
+          <Link href="#" onClick={(e) => onToggle(e, "/login")}>
+            Sign In
           </Link>
         </Typography>
       </Box>
