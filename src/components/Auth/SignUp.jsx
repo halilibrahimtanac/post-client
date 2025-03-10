@@ -1,10 +1,48 @@
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
+import { useState } from "react";
+import { useSignupMutation } from "../../store/user/mutation";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUpForm({ onToggle }) {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", username: "", password: "", confirmPassword: "" });
+  const [signup] = useSignupMutation();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Add your sign-up logic here
-    console.log("Signing up...");
+    
+    if(Object.values(form).some(v => !v)) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    if (form.username.length < 3) {
+      alert("Username must be at least 3 characters long");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      alert("Password must be at least 6 characters long");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    await signup({
+      email: form.email,
+      username: form.username,
+      password: form.password
+    });
+    navigate("/home");
   };
 
   return (

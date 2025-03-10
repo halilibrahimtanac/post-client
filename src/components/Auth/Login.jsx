@@ -1,8 +1,10 @@
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import { useLoginMutation } from "../../store/user/mutation";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm({ onToggle }) {
+  const navigate = useNavigate();
   const [login] = useLoginMutation();
   const [formInfos, setFormInfos] = useState({ email: "", password: "" });
 
@@ -10,10 +12,11 @@ export default function LoginForm({ onToggle }) {
     setFormInfos(prev => ({ ...prev, [field]: value }));
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if(formInfos.email && formInfos.password){
-      login(formInfos);
+      await login(formInfos);
+      navigate("/home");
     }
   };
 

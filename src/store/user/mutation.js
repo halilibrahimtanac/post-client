@@ -19,6 +19,22 @@ const userMutations = api.injectEndpoints({
         }
       },
     }),
+    signup: builder.mutation({
+      query: (body) => ({
+        url: "/api/user/register",
+        method: "POST",
+        body
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+
+          dispatch(setCredentials(data));
+        } catch (error) {
+          console.error("Signup mutation failed:", error);
+        }
+      },
+    }),
     logOut: builder.mutation({
       query: () => ({
         url: "/api/user/logout",
@@ -38,4 +54,4 @@ const userMutations = api.injectEndpoints({
   }),
 });
 
-export const { useLoginMutation, useLogOutMutation } = userMutations;
+export const { useLoginMutation, useLogOutMutation, useSignupMutation } = userMutations;
