@@ -2,11 +2,14 @@ import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import { useLoginMutation } from "../../store/user/mutation";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/slices/data";
 
 export default function LoginForm({ onToggle }) {
   const navigate = useNavigate();
   const [login] = useLoginMutation();
   const [formInfos, setFormInfos] = useState({ email: "", password: "" });
+  const dispatch = useDispatch();
 
   const onChangeField = (field, value) => {
     setFormInfos(prev => ({ ...prev, [field]: value }));
@@ -15,8 +18,15 @@ export default function LoginForm({ onToggle }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if(formInfos.email && formInfos.password){
-      await login(formInfos);
-      navigate("/home");
+      try {
+        const result = await login(formInfos).unwrap();
+        
+        dispatch(setCredentials(result));
+        
+        navigate("/home");
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
     }
   };
 

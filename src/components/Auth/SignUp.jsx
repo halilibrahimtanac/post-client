@@ -2,11 +2,14 @@ import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useSignupMutation } from "../../store/user/mutation";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/slices/data";
 
 export default function SignUpForm({ onToggle }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", username: "", password: "", confirmPassword: "" });
   const [signup] = useSignupMutation();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,13 +40,25 @@ export default function SignUpForm({ onToggle }) {
       return;
     }
 
-    await signup({
-      email: form.email,
-      username: form.username,
-      password: form.password
-    });
-    navigate("/home");
+    try {
+      const result = await await signup({
+        email: form.email,
+        username: form.username,
+        password: form.password,
+        userType: "regular"
+      }).unwrap();
+      
+      dispatch(setCredentials(result));
+      
+      navigate("/home");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
+
+  const onChangeField = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  }
 
   return (
     <>
@@ -60,6 +75,7 @@ export default function SignUpForm({ onToggle }) {
           name="email"
           autoComplete="email"
           autoFocus
+          onChange={(e) => onChangeField("email", e.target.value)}
         />
         <TextField
           margin="normal"
@@ -69,6 +85,7 @@ export default function SignUpForm({ onToggle }) {
           label="Username"
           name="username"
           autoComplete="username"
+          onChange={(e) => onChangeField("username", e.target.value)}
         />
         <TextField
           margin="normal"
@@ -79,6 +96,7 @@ export default function SignUpForm({ onToggle }) {
           type="password"
           id="signup-password"
           autoComplete="new-password"
+          onChange={(e) => onChangeField("password", e.target.value)}
         />
         <TextField
           margin="normal"
@@ -89,6 +107,7 @@ export default function SignUpForm({ onToggle }) {
           type="password"
           id="signup-confirmPassword"
           autoComplete="new-password"
+          onChange={(e) => onChangeField("confirmPassword", e.target.value)}
         />
         <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
           Sign Up

@@ -1,5 +1,5 @@
 import { api } from "../api";
-import { logOut, setCredentials } from "../slices/data";
+import { logOut } from "../slices/data";
 
 const userMutations = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,32 +8,14 @@ const userMutations = api.injectEndpoints({
         url: "/api/user/login",
         method: "POST",
         body,
-      }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-
-          dispatch(setCredentials(data));
-        } catch (error) {
-          console.error("Login mutation failed:", error);
-        }
-      },
+      })
     }),
     signup: builder.mutation({
       query: (body) => ({
         url: "/api/user/register",
         method: "POST",
-        body
-      }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-
-          dispatch(setCredentials(data));
-        } catch (error) {
-          console.error("Signup mutation failed:", error);
-        }
-      },
+        body: { user: body }
+      })
     }),
     logOut: builder.mutation({
       query: () => ({
