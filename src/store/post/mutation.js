@@ -7,9 +7,9 @@ const postMutationEndpoints = api.injectEndpoints({
         url: "/api/post/new-post",
         method: "POST",
         credentials: "include",
-        body: { newPost: body },
+        body,
       }),
-      onQueryStarted: async (
+      /* onQueryStarted: async (
         newPost,
         { dispatch, queryFulfilled, getState }
       ) => {
@@ -45,7 +45,8 @@ const postMutationEndpoints = api.injectEndpoints({
             console.error('Failed to create post:', error.message);
           }
         }
-      },
+      }, */
+      invalidatesTags: [{ type: "Post", id: "LIST" }],
     }),
     deletePost: builder.mutation({
         query: (postId) => ({
