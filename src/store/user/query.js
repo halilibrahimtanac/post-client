@@ -8,6 +8,7 @@ const userQueries = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      providesTags: ["User"]
     }),
   }),
 });

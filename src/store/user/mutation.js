@@ -32,8 +32,17 @@ const userMutations = api.injectEndpoints({
           dispatch(logOut())
         }
       }
+    }),
+    updateProfile: builder.mutation({
+      query: (body) => ({
+        url: "/api/user/profile-update",
+        method: "POST",
+        credentials: "include",
+        body
+      }),
+      invalidatesTags: ["User"]
     })
   }),
 });
 
-export const { useLoginMutation, useLogOutMutation, useSignupMutation } = userMutations;
+export const { useLoginMutation, useLogOutMutation, useSignupMutation, useUpdateProfileMutation } = userMutations;

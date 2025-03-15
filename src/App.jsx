@@ -4,8 +4,8 @@ import { Route, Routes } from "react-router-dom";
 import PublicRoute from "./components/RouteWrapper/PublicRoute";
 import ProtectedRoute from "./components/RouteWrapper/ProtectedRoute";
 import RootRedirect from "./components/RouteWrapper/RouteRedirect";
-import PostList from "./components/Post/PostList";
 import Home from "./components/Home";
+import Profile from "./components/Auth/Profile";
 
 function App() {
   return (
@@ -19,6 +19,7 @@ function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />}/>
+        <Route path="/profile" element={<Profile />}/>
       </Route>
     </Routes>
   );

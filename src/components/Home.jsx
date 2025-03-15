@@ -22,7 +22,7 @@ const Home = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#333' }}>
             Home Page
           </Typography>
-          <IconButton sx={{ color: '#333' }}>
+          <IconButton onClick={() => navigate("/profile")} sx={{ color: '#333' }}>
             <AccountCircleOutlined fontSize="large" />
           </IconButton>
           <IconButton sx={{ color: '#333' }} onClick={() => {}}>
