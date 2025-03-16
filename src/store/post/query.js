@@ -19,8 +19,12 @@ export const postQueryEndpoints = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      transformResponse: (responseData) => {
+        return responseData.posts && Array.isArray(responseData.posts) ? responseData.posts : responseData.posts ? [responseData.posts] : []
+      },
       providesTags: (result) => {
-        const tags = result.map((r) => ({ type: "Post", id: r.id }));
+        let posts = result.posts && Array.isArray(result.posts) ? result.posts : result.posts ? [result.posts] : []
+        const tags = posts.map((r) => ({ type: "Post", id: r.id }));
         return tags;
       },
     }),

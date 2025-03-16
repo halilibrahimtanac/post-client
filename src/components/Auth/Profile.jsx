@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import {
   Email as EmailIcon,
-  Person as PersonIcon,
   Cake as CakeIcon,
   Event as EventIcon,
   AccountCircle as AccountIcon,
@@ -26,6 +25,7 @@ import {
 import { format } from 'date-fns';
 import { useGetProfileQuery } from '../../store/user/query';
 import { useUpdateProfileMutation } from '../../store/user/mutation';
+import ProfilePostList from '../Post/ProfilePostList';
 
 const ProfileContainer = styled(Box)({
   display: 'flex',
@@ -41,9 +41,6 @@ const ProfileCard = styled(Card)({
   borderRadius: '16px',
   boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
   transition: 'transform 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-  },
 });
 
 const ProfileHeader = styled(Box)({
@@ -262,6 +259,8 @@ const Profile = () => {
           </DetailList>
 
           {selectedImage && <Button variant='contained' onClick={save}>Save</Button>}
+
+          <ProfilePostList constructMediaUrl={constructMediaUrl}/>
         </ProfileContent>
       </ProfileCard>
     </ProfileContainer>
