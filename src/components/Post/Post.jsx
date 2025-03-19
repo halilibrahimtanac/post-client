@@ -7,6 +7,7 @@ import {
   Avatar,
   styled,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const StyledCard = styled(Card)({
   maxWidth: 600,
@@ -51,12 +52,13 @@ const constructMediaUrl = (relativePath) => {
   return `http://localhost:3000/media/${normalizedPath}`;
 };
 
-const Post = ({ body, createdAt, image, user, video }) => {
+const Post = ({ id, body, createdAt, image, user, video }) => {
+  const navigate = useNavigate();
   const formattedDate = new Date(createdAt).toLocaleDateString();
   const imageUrl = constructMediaUrl(image);
   const videoUrl = constructMediaUrl(video);
   return (
-    <StyledCard>
+    <StyledCard onClick={() => navigate(`/post/${id}`)}>
       <CardHeader
         avatar={<Avatar sx={{ bgcolor: "#1976d2" }}>{user.username[0]}</Avatar>}
         title={

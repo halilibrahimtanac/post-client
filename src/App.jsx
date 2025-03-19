@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/RouteWrapper/ProtectedRoute";
 import RootRedirect from "./components/RouteWrapper/RouteRedirect";
 import Home from "./components/Home";
 import Profile from "./components/Auth/Profile";
+import PostPage from "./components/Post/PostPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />}/>
         <Route path="/profile" element={<Profile />}/>
+        <Route path="/post/:id" element={<PostPage />}/>
       </Route>
     </Routes>
   );

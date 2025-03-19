@@ -17,7 +17,7 @@ const PostList = () => {
   return (
     <Container sx={{ mt: 4 }}>
       <NewPost />
-      {data.posts.map((p) => <Post key={p.id} body={p.body} createdAt={p.createdAt} image={p.image} user={p.user} video={p.video}/>)}
+      {data.posts.map((p) => <Post key={p.id} id={p.id} body={p.body} createdAt={p.createdAt} image={p.image} user={p.user} video={p.video}/>)}
     </Container>
   );
 };

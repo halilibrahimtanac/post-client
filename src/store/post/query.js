@@ -1,5 +1,15 @@
 import { api } from "../api";
 
+const tagProviderHelper = (result) => {
+  let posts = result.posts && Array.isArray(result.posts) ? result.posts : result.posts ? [result.posts] : []
+  const tags = posts.map((r) => ({ type: "Post", id: r.id }));
+  return tags;
+}
+
+const transformerHelper = (responseData) => {
+  return responseData.posts && Array.isArray(responseData.posts) ? responseData.posts : responseData.posts ? [responseData.posts] : []
+}
+
 export const postQueryEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
     getAllPosts: builder.query({
@@ -19,14 +29,8 @@ export const postQueryEndpoints = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
-      transformResponse: (responseData) => {
-        return responseData.posts && Array.isArray(responseData.posts) ? responseData.posts : responseData.posts ? [responseData.posts] : []
-      },
-      providesTags: (result) => {
-        let posts = result.posts && Array.isArray(result.posts) ? result.posts : result.posts ? [result.posts] : []
-        const tags = posts.map((r) => ({ type: "Post", id: r.id }));
-        return tags;
-      },
+      transformResponse: (responseData) => transformerHelper(responseData),
+      providesTags: (result) => tagProviderHelper(result),
     }),
     getPost: builder.query({
       query: (postId) => ({
@@ -42,10 +46,8 @@ export const postQueryEndpoints = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
-      providesTags: (result) => {
-        const tags = result.map((r) => ({ type: "Post", id: r.id }));
-        return tags;
-      },
+      transformResponse: (responseData) => transformerHelper(responseData),
+      providesTags: (result) => tagProviderHelper(result),
     })
   }),
 });
