@@ -1,12 +1,15 @@
-import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
-import React from "react";
+import { AppBar, Box, Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
+import React, { useState } from "react";
 import { AccountCircleOutlined, Logout } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
 import { useLogOutMutation } from "../store/user/mutation";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
+  const user = useSelector(state => state.data.user);
   const navigate = useNavigate();
   const [logout] = useLogOutMutation();
+  const [anchorEl, setAnchorEl] = useState();
 
   const logOutHandler = async () => {
     await logout();
@@ -29,12 +32,39 @@ const Navbar = () => {
         >
           MyApp
         </Typography>
-        <IconButton onClick={() => navigate("/profile")} sx={{ color: "#333" }}>
-          <AccountCircleOutlined fontSize="large" />
-        </IconButton>
-        <IconButton sx={{ color: "#333" }} onClick={() => {}}>
-          <Logout onClick={logOutHandler} />
-        </IconButton>
+        <Box>
+          <Button
+            onClick={(e) => setAnchorEl(e.currentTarget)}
+            sx={{ textTransform: 'none', color: "#333", display: "flex", gap: 1 }}
+          >
+            <AccountCircleOutlined fontSize="medium" />
+            <Typography sx={{ color: "#333" }}>{user?.username}</Typography>
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+          >
+            <MenuItem onClick={() => {
+              navigate("/profile");
+              setAnchorEl(null);
+            }}>
+              <ListItemIcon>
+                <AccountCircleOutlined fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Profile</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => {
+              logOutHandler();
+              setAnchorEl(null);
+            }}>
+              <ListItemIcon>
+                <Logout fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Logout</ListItemText>
+            </MenuItem>
+          </Menu>
+        </Box>
       </Toolbar>
     </AppBar>
   );

@@ -3,22 +3,35 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 function getFromRoute(route){
   const url = "https://jsonplaceholder.typicode.com/"
   return fetch(`${url}${route}`).then(res => res.json());
-  
+}
+
+function loadInitialData(){
+    return { 
+        isAuthenticated: localStorage.getItem("accessToken") ? true : false, 
+        accessToken: localStorage.getItem("accessToken") || null, 
+        allUsers: { status: "idle", data: [], error: null }, 
+        allPosts: { status: "idle", data: [], error: null },
+        user: localStorage.getItem("post_client_user")
+    } 
 }
 
 const dataSlice = createSlice({
     name: "user",
-    initialState: { isAuthenticated: localStorage.getItem("accessToken") ? true : false, accessToken: localStorage.getItem("accessToken") || null, allUsers: { status: "idle", data: [], error: null }, allPosts: { status: "idle", data: [], error: null } },
+    initialState: loadInitialData(),
     reducers: {
         setCredentials: (state, action) => {
             localStorage.setItem("accessToken", action.payload.accessToken);
+            localStorage.setItem("post_client_user", action.payload.user);
             state.accessToken = action.payload.accessToken;
             state.isAuthenticated = true;
+            state.user = action.payload.user;
         },
         logOut: (state, action) => {
             localStorage.removeItem("accessToken")
+            localStorage.removeIem("post_client_user");
             state.isAuthenticated = false;
             state.accessToken = null;
+            state.user = null;
         }
     },
     extraReducers: (builder) =>{
