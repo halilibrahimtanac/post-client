@@ -28,7 +28,8 @@ const Navbar = () => {
         <Typography
           variant="h6"
           component="div"
-          sx={{ flexGrow: 1, color: "#333" }}
+          sx={{ flexGrow: 1, color: "#333", cursor: "pointer" }}
+          onClick={() => navigate("/home")}
         >
           MyApp
         </Typography>

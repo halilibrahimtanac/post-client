@@ -24,8 +24,8 @@ export const postQueryEndpoints = api.injectEndpoints({
       },
     }),
     getUserPosts: builder.query({
-      query: () => ({
-        url: "/api/post/get-user-posts",
+      query: (username) => ({
+        url: `/api/post/get-user-posts${username ? "/" + username : ""}`,
         method: "GET",
         credentials: "include",
       }),

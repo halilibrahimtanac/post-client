@@ -11,7 +11,7 @@ function loadInitialData(){
         accessToken: localStorage.getItem("accessToken") || null, 
         allUsers: { status: "idle", data: [], error: null }, 
         allPosts: { status: "idle", data: [], error: null },
-        user: localStorage.getItem("post_client_user")
+        user: localStorage.getItem("post_client_user") ? JSON.parse(localStorage.getItem("post_client_user")) : null
     } 
 }
 
@@ -21,7 +21,7 @@ const dataSlice = createSlice({
     reducers: {
         setCredentials: (state, action) => {
             localStorage.setItem("accessToken", action.payload.accessToken);
-            localStorage.setItem("post_client_user", action.payload.user);
+            localStorage.setItem("post_client_user", JSON.stringify(action.payload.user));
             state.accessToken = action.payload.accessToken;
             state.isAuthenticated = true;
             state.user = action.payload.user;

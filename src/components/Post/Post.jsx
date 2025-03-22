@@ -8,6 +8,8 @@ import {
   styled,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { constructMediaUrl } from "../../lib/utils";
 
 const StyledCard = styled(Card)({
   maxWidth: 600,
@@ -44,25 +46,28 @@ const isValidUrl = (url) => {
   }
 };
 
-
-const constructMediaUrl = (relativePath) => {
-  if (!relativePath) return null;
-
-  const normalizedPath = relativePath?.replace(/\\/g, ".");
-  return `http://localhost:3000/media/${normalizedPath}`;
-};
-
 const Post = ({ id, body, createdAt, image, user, video }) => {
+  const loggedUser = useSelector(state => state.data.user);
   const navigate = useNavigate();
   const formattedDate = new Date(createdAt).toLocaleDateString();
   const imageUrl = constructMediaUrl(image);
   const videoUrl = constructMediaUrl(video);
+
+  const profileNavigate = (e) => {
+    e.stopPropagation();
+    navigate(
+      loggedUser.username === user.username
+        ? "/profile"
+        : `/user/profile/${user.username}`
+    );
+  };
+
   return (
     <StyledCard onClick={() => navigate(`/post/${id}`)}>
       <CardHeader
-        avatar={<Avatar sx={{ bgcolor: "#1976d2" }}>{user.username[0]}</Avatar>}
+        avatar={<Avatar sx={{ bgcolor: "#1976d2" }} src={constructMediaUrl(user.profilePicture)}>{user.username[0]}</Avatar>}
         title={
-          <Typography variant="subtitle1" fontWeight="600">
+          <Typography onClick={profileNavigate} sx={{ "&:hover": { textDecoration: "underline", cursor: "pointer" } }} variant="subtitle1" fontWeight="600">
             {user.username}
           </Typography>
         }

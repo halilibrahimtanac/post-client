@@ -11,6 +11,7 @@ import {
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { useGetUserPostsQuery } from "../../store/post/query";
+import { constructMediaUrl } from "../../lib/utils";
 
 const PostsGrid = styled(Box)({
   display: "grid",
@@ -72,8 +73,8 @@ const EmptyPosts = styled(Box)({
   color: "#636e72",
 });
 
-const ProfilePostList = ({ constructMediaUrl }) => {
-  const { data: posts, isLoading: postsLoading } = useGetUserPostsQuery();
+const ProfilePostList = ({ username }) => {
+  const { data: posts, isLoading: postsLoading } = useGetUserPostsQuery(username);
 
   return (
     <>

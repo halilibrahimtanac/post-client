@@ -26,6 +26,8 @@ import { format } from 'date-fns';
 import { useGetProfileQuery } from '../../store/user/query';
 import { useUpdateProfileMutation } from '../../store/user/mutation';
 import ProfilePostList from '../Post/ProfilePostList';
+import { useParams } from 'react-router-dom';
+import { constructMediaUrl } from '../../lib/utils';
 
 const ProfileContainer = styled(Box)({
   display: 'flex',
@@ -98,20 +100,15 @@ const DetailItem = styled(ListItem)({
   padding: '8px 24px',
 });
 
-const constructMediaUrl = (relativePath) => {
-  if (!relativePath) return null;
-  const normalizedPath = relativePath.replace(/\\/g, '.');
-  return `http://localhost:3000/media/${normalizedPath}`;
-};
-
 const calculateAge = (birthDate) => {
   const diff = Date.now() - new Date(birthDate).getTime();
   const ageDate = new Date(diff);
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 };
 
-const Profile = () => {
-  const { data: profile, isLoading, error, refetch } = useGetProfileQuery();
+const Profile = ({ mainUser = true }) => {
+  const { username } = useParams();
+  const { data: profile, isLoading, error, refetch } = useGetProfileQuery(username);
   const [updateProfile] = useUpdateProfileMutation();
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -186,7 +183,7 @@ const Profile = () => {
       <ProfileCard>
         <ProfileHeader>
         <ProfileAvatarWrapper 
-            onClick={handleAvatarClick}
+            onClick={mainUser ? handleAvatarClick : () => {}}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}>
             <ProfileAvatar 
@@ -194,10 +191,10 @@ const Profile = () => {
               alt={`${profile.name} ${profile.lastname}`}
             >
               {!profile.profilePicture && !selectedImage && (
-                <AccountIcon sx={{ fontSize: 60, zIndex: 1, opacity: isHovered ? 0.5 : 1 }} />
+                <AccountIcon sx={{ fontSize: 60, zIndex: 1, opacity: (isHovered && mainUser) ? 0.5 : 1 }} />
               )}
             </ProfileAvatar>
-            <AvatarOverlay sx={{ opacity: isHovered ? 1 : 0 }}>
+            <AvatarOverlay sx={{ opacity: (isHovered && mainUser) ? 1 : 0 }}>
               <Camera sx={{ color: 'white', fontSize: 40, zIndex: 2 }} />
             </AvatarOverlay>
           </ProfileAvatarWrapper>
@@ -260,7 +257,7 @@ const Profile = () => {
 
           {selectedImage && <Button variant='contained' onClick={save}>Save</Button>}
 
-          <ProfilePostList constructMediaUrl={constructMediaUrl}/>
+          <ProfilePostList username={username}/>
         </ProfileContent>
       </ProfileCard>
     </ProfileContainer>

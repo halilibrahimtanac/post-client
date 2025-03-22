@@ -22,6 +22,7 @@ function App() {
         <Route path="/home" element={<Home />}/>
         <Route path="/profile" element={<Profile />}/>
         <Route path="/post/:id" element={<PostPage />}/>
+        <Route path="/user/profile/:username" element={<Profile mainUser={false}/>}/>
       </Route>
     </Routes>
   );
