@@ -17,9 +17,10 @@ const PostPage = () => {
   }
 
   return (
-    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 5, alignItems: "center" }}>
-        <Post {...data }/>
-        <div >
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+      <div>
+        <Post {...data }/></div>
+        <div style={{ paddingLeft: 50, boxSizing: "border-box"}}>
             {relatedPosts?.map(p => <Post {...p} />)}
         </div>
     </div>

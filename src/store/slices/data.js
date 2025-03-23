@@ -28,7 +28,7 @@ const dataSlice = createSlice({
         },
         logOut: (state, action) => {
             localStorage.removeItem("accessToken")
-            localStorage.removeIem("post_client_user");
+            localStorage.removeItem("post_client_user");
             state.isAuthenticated = false;
             state.accessToken = null;
             state.user = null;

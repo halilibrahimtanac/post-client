@@ -22,16 +22,7 @@ const userMutations = api.injectEndpoints({
         url: "/api/user/logout",
         method: "GET",
         credentials: "include",
-      }),
-      async onQueryStarted(args, { dispatch, queryFulfilled}){
-        try{
-          await queryFulfilled
-        }catch(err){
-          console.log("Logout error", err);
-        }finally {
-          dispatch(logOut())
-        }
-      }
+      })
     }),
     updateProfile: builder.mutation({
       query: (body) => ({

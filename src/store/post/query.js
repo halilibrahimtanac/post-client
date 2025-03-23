@@ -6,10 +6,6 @@ const tagProviderHelper = (result) => {
   return tags;
 }
 
-const transformerHelper = (responseData) => {
-  return responseData.posts && Array.isArray(responseData.posts) ? responseData.posts : responseData.posts ? [responseData.posts] : []
-}
-
 export const postQueryEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
     getAllPosts: builder.query({
@@ -29,7 +25,7 @@ export const postQueryEndpoints = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
-      transformResponse: (responseData) => transformerHelper(responseData),
+      transformResponse: (responseData) => responseData.posts,
       providesTags: (result) => tagProviderHelper(result),
     }),
     getPost: builder.query({
@@ -38,6 +34,7 @@ export const postQueryEndpoints = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      transformResponse: (responseData) => responseData[0],
       providesTags: (result, err, arg) => [{ type: "Post", id: arg }]
     }),
     getRelatedPosts: builder.query({
@@ -46,7 +43,7 @@ export const postQueryEndpoints = api.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
-      transformResponse: (responseData) => transformerHelper(responseData),
+      transformResponse: (responseData) => responseData.posts,
       providesTags: (result) => tagProviderHelper(result),
     })
   }),

@@ -3,17 +3,27 @@ import React, { useState } from "react";
 import { AccountCircleOutlined, Logout } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
 import { useLogOutMutation } from "../store/user/mutation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logOut } from "../store/slices/data";
+import { constructMediaUrl } from "../lib/utils";
 
 const Navbar = () => {
   const user = useSelector(state => state.data.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logout] = useLogOutMutation();
   const [anchorEl, setAnchorEl] = useState();
 
   const logOutHandler = async () => {
-    await logout();
-    navigate("/login");
+    try{
+      await logout();
+      dispatch(logOut());
+    }catch(err){
+      console.log(err);
+    }finally{
+      navigate("/login");
+    }
+    
   };
   return (
     <AppBar
@@ -38,7 +48,21 @@ const Navbar = () => {
             onClick={(e) => setAnchorEl(e.currentTarget)}
             sx={{ textTransform: 'none', color: "#333", display: "flex", gap: 1 }}
           >
-            <AccountCircleOutlined fontSize="medium" />
+            {user?.profilePicture ? (
+              <Box
+                component="img"
+                src={constructMediaUrl(user.profilePicture)}
+                alt={user.username}
+                sx={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
+            ) : (
+              <AccountCircleOutlined fontSize="medium" />
+            )}
             <Typography sx={{ color: "#333" }}>{user?.username}</Typography>
           </Button>
           <Menu
