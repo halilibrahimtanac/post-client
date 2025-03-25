@@ -88,7 +88,7 @@ const Post = ({
               position: "relative",
             }}
           >
-            {parentPost && (
+            {/* parentPost && (
               <Box
                 sx={{
                   minWidth: "1px",
@@ -101,7 +101,7 @@ const Post = ({
                   transform: "translateX(-50%)",
                 }}
               />
-            )}
+            ) */}
             <Avatar
               sx={{ bgcolor: "#1976d2" }}
               src={constructMediaUrl(user.profilePicture)}

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { Card, CardContent, TextField, Button, Typography, IconButton } from "@mui/material";
+import { Card, CardContent, TextField, Button, Typography, IconButton, Avatar } from "@mui/material";
 import { PhotoCamera, VideoLibrary } from "@mui/icons-material";
 import { useNewPostMutation } from "../../store/post/mutation";
+import { constructMediaUrl } from "../../lib/utils";
+import { useSelector } from "react-redux";
 
-const NewPost = () => {
+const NewPost = ({ parentPost, refetch }) => {
+  const user = useSelector(state => state.data.user)
   const [newPost] = useNewPostMutation();
   const [body, setBody] = useState("");
   const [media, setMedia] = useState(null);
@@ -21,15 +24,20 @@ const NewPost = () => {
     if(!body && !media) return;
 
     const formData = new FormData();
-    let str = JSON.stringify({ body })
-    console.log(str);
+
     formData.append("body", body);
+
+    if(parentPost){
+      formData.append("parentPost", parentPost);
+    }
+
     if(media){
-        formData.append("file", media);
+      formData.append("file", media);
     }
 
     try{
         await newPost(formData).unwrap();
+        refetch?.();
         setBody("");
         setMedia(null);
         setPreview(null);
@@ -39,21 +47,31 @@ const NewPost = () => {
   };
 
   return (
-    <Card sx={{ maxWidth: 570, margin: "auto", padding: 2, boxShadow: 3 }}>
+    <Card sx={{ maxWidth: 570, margin: "auto", padding: 2, boxShadow: 1 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Create a New Post
-        </Typography>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          variant="outlined"
-          placeholder="What's on your mind?"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          sx={{ marginBottom: 2 }}
-        />
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            gap: 5,
+            alignItems: "center",
+          }}
+        >
+          <Avatar
+            sx={{ bgcolor: "#1976d2" }}
+            src={constructMediaUrl(user.profilePicture)}
+          >
+            {user.username[0]}
+          </Avatar>
+          <TextField
+            fullWidth
+            multiline
+            variant="outlined"
+            placeholder="What's on your mind?"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+          />
+        </div>
         <input
           accept="image/*,video/*"
           style={{ display: "none" }}
@@ -70,19 +88,26 @@ const NewPost = () => {
           </IconButton>
         </label>
         {media && <Typography variant="body2">{media.name}</Typography>}
-        {preview && (media.type.startsWith("image") ? (
-          <img src={preview} alt="Preview" style={{ maxWidth: "100%", marginTop: 10, borderRadius: 5 }} />
-        ) : (
-          <video controls style={{ maxWidth: "100%", marginTop: 10, borderRadius: 5 }}>
-            <source src={preview} type={media.type} />
-            Your browser does not support the video tag.
-          </video>
-        ))}
+        {preview &&
+          (media.type.startsWith("image") ? (
+            <img
+              src={preview}
+              alt="Preview"
+              style={{ maxWidth: "100%", marginTop: 10, borderRadius: 5 }}
+            />
+          ) : (
+            <video
+              controls
+              style={{ maxWidth: "100%", marginTop: 10, borderRadius: 5 }}
+            >
+              <source src={preview} type={media.type} />
+              Your browser does not support the video tag.
+            </video>
+          ))}
         <Button
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ marginTop: 2 }}
           onClick={handleSubmit}
         >
           Post

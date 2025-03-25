@@ -2,11 +2,12 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { useGetPostQuery, useGetRelatedPostsQuery } from '../../store/post/query';
 import Post from './Post';
+import NewPost from './NewPost';
 
 const PostPage = () => {
   const { id } = useParams();
   const { data, isLoading, isError } = useGetPostQuery(id);
-  const { data:relatedPosts, isLoading:isLoading1, isError:isError1 } = useGetRelatedPostsQuery(id);
+  const { data:relatedPosts, isLoading:isLoading1, isError:isError1, refetch } = useGetRelatedPostsQuery(id);
 
   if (isLoading && isLoading1){
     return <div>Loading...</div>
@@ -21,6 +22,7 @@ const PostPage = () => {
       <div>
         <Post {...data }/></div>
         <div style={{ paddingLeft: 50, boxSizing: "border-box"}}>
+            <NewPost parentPost={id} refetch={refetch}/>
             {relatedPosts?.map(p => <Post {...p} />)}
         </div>
     </div>
