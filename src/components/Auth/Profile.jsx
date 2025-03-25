@@ -13,14 +13,17 @@ import {
   ListItemText,
   Divider,
   styled,
-  Button
+  Button,
+  TextField,
+  IconButton
 } from '@mui/material';
 import {
   Email as EmailIcon,
   Cake as CakeIcon,
   Event as EventIcon,
   AccountCircle as AccountIcon,
-  Camera
+  Camera,
+  Edit
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { useGetProfileQuery } from '../../store/user/query';
@@ -28,6 +31,9 @@ import { useUpdateProfileMutation } from '../../store/user/mutation';
 import ProfilePostList from '../Post/ProfilePostList';
 import { useParams } from 'react-router-dom';
 import { constructMediaUrl } from '../../lib/utils';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs';
 
 const ProfileContainer = styled(Box)({
   display: 'flex',
@@ -111,8 +117,8 @@ const Profile = ({ mainUser = true }) => {
   const { data: profile, isLoading, error, refetch } = useGetProfileQuery(username);
   const [updateProfile] = useUpdateProfileMutation();
   const fileInputRef = useRef(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [updateFields, setUpdateFields] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleAvatarClick = () => {
@@ -123,8 +129,7 @@ const Profile = ({ mainUser = true }) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setSelectedFile(file);
-      setSelectedImage(imageUrl);
+      setUpdateFields(prev => ({ ...prev, file, selectedImage: imageUrl}));
       // Here you would typically upload the image to your server
     }
   };
@@ -132,9 +137,11 @@ const Profile = ({ mainUser = true }) => {
   const save = async () => {
     try{
         const formData = new FormData();
-        formData.append("file", selectedFile);
+        Object.keys(updateFields).forEach(ky => {
+          formData.append(ky, updateFields[ky]);
+        })
         await updateProfile(formData);
-        setSelectedImage(null);
+        setUpdateFields({});
     }catch(err){
         console.log(err);
     }
@@ -187,10 +194,10 @@ const Profile = ({ mainUser = true }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}>
             <ProfileAvatar 
-              src={selectedImage || constructMediaUrl(profile.profilePicture)} 
+              src={updateFields.selectedImage || constructMediaUrl(profile.profilePicture)} 
               alt={`${profile.name} ${profile.lastname}`}
             >
-              {!profile.profilePicture && !selectedImage && (
+              {!profile.profilePicture && !updateFields.selectedImage && (
                 <AccountIcon sx={{ fontSize: 60, zIndex: 1, opacity: (isHovered && mainUser) ? 0.5 : 1 }} />
               )}
             </ProfileAvatar>
@@ -234,14 +241,32 @@ const Profile = ({ mainUser = true }) => {
               />
             </DetailItem>
 
-            <DetailItem>
+            <DetailItem onDoubleClick={() => setIsEditing(true)}>
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <CakeIcon color='primary' />
               </ListItemIcon>
-              {profile.birthDate && <ListItemText 
-                primary="Birth Date" 
-                secondary={`${format(new Date(profile.birthDate), 'd MMMM, yyyy')} (${calculateAge(profile.birthDate)} years)`}
-              />}
+              {isEditing ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    value={updateFields?.birthDate ? dayjs(updateFields?.birthDate) : dayjs(profile.birthDate)}
+                    onChange={(newDate) => {
+                      console.log(dayjs(newDate));
+                      setUpdateFields(prev => ({ ...prev, birthDate: `${newDate.$y}-${newDate.$M + 1}-${newDate.$D}` }))
+                    }}
+                    closeOnSelect
+                  />
+                  </LocalizationProvider>
+              ) : (
+                (profile.birthDate || updateFields.birthDate) && (
+                  <ListItemText 
+                    primary="Birth Date" 
+                    secondary={`${format(new Date(updateFields.birthDate || profile.birthDate), 'd MMMM, yyyy')} (${calculateAge(updateFields.birthDate || profile.birthDate)} years)`}
+                  />
+                )
+              )}
+              <IconButton onClick={() => setIsEditing(prev => !prev)} sx={{ marginLeft: "auto" }}>
+                <Edit />
+              </IconButton>
             </DetailItem>
 
             <DetailItem>
@@ -255,7 +280,7 @@ const Profile = ({ mainUser = true }) => {
             </DetailItem>
           </DetailList>
 
-          {selectedImage && <Button variant='contained' onClick={save}>Save</Button>}
+          {Object.values(updateFields).some(Boolean) && <Button variant='contained' onClick={save}>Save</Button>}
 
           <ProfilePostList username={username}/>
         </ProfileContent>
