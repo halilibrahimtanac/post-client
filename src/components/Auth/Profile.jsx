@@ -118,7 +118,7 @@ const Profile = ({ mainUser = true }) => {
   const [updateProfile] = useUpdateProfileMutation();
   const fileInputRef = useRef(null);
   const [updateFields, setUpdateFields] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState({ birthDate: false, nameLastName: false });
   const [isHovered, setIsHovered] = useState(false);
 
   const handleAvatarClick = () => {
@@ -142,9 +142,24 @@ const Profile = ({ mainUser = true }) => {
         })
         await updateProfile(formData);
         setUpdateFields({});
+        setIsEditing({ birthDate: false, nameLastName: false });
     }catch(err){
         console.log(err);
     }
+  }
+
+  const setEditingState = (fieldName) => {
+    setIsEditing(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName]
+    }))
+  }
+
+  const setUpdatingFieldsState = (fieldName, val) => {
+    setUpdateFields(prev => ({
+      ...prev,
+      [fieldName]: val
+    }))
   }
 
   if (isLoading) {
@@ -189,41 +204,86 @@ const Profile = ({ mainUser = true }) => {
     <ProfileContainer>
       <ProfileCard>
         <ProfileHeader>
-        <ProfileAvatarWrapper 
+          <ProfileAvatarWrapper
             onClick={mainUser ? handleAvatarClick : () => {}}
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}>
-            <ProfileAvatar 
-              src={updateFields.selectedImage || constructMediaUrl(profile.profilePicture)} 
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <ProfileAvatar
+              src={
+                updateFields.selectedImage ||
+                constructMediaUrl(profile.profilePicture)
+              }
               alt={`${profile.name} ${profile.lastname}`}
             >
               {!profile.profilePicture && !updateFields.selectedImage && (
-                <AccountIcon sx={{ fontSize: 60, zIndex: 1, opacity: (isHovered && mainUser) ? 0.5 : 1 }} />
+                <AccountIcon
+                  sx={{
+                    fontSize: 60,
+                    zIndex: 1,
+                    opacity: isHovered && mainUser ? 0.5 : 1,
+                  }}
+                />
               )}
             </ProfileAvatar>
-            <AvatarOverlay sx={{ opacity: (isHovered && mainUser) ? 1 : 0 }}>
-              <Camera sx={{ color: 'white', fontSize: 40, zIndex: 2 }} />
+            <AvatarOverlay sx={{ opacity: isHovered && mainUser ? 1 : 0 }}>
+              <Camera sx={{ color: "white", fontSize: 40, zIndex: 2 }} />
             </AvatarOverlay>
           </ProfileAvatarWrapper>
-          
+
           <input
             type="file"
             accept="image/*"
             ref={fileInputRef}
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             onChange={handleFileSelect}
           />
         </ProfileHeader>
 
         <ProfileContent>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-            {profile.name} {profile.lastname}
-          </Typography>
-          
-          <Typography 
-            variant="subtitle1" 
-            gutterBottom 
-            sx={{ color: '#636e72', mb: 3 }}
+          <div
+            style={{
+              display: "flex",
+              gap: 5,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {isEditing.nameLastName ? (
+              <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+                <TextField
+                  value={updateFields?.name || profile.name}
+                  onChange={(e) =>
+                    setUpdatingFieldsState("name", e.target.value)
+                  }
+                />
+                <TextField
+                  value={updateFields?.lastname || profile.lastname}
+                  onChange={(e) =>
+                    setUpdatingFieldsState("lastname", e.target.value)
+                  }
+                />
+              </div>
+            ) : (
+              <Typography
+                variant="h4"
+                gutterBottom
+                sx={{ fontWeight: 600, marginBottom: 0 }}
+              >
+                {profile.name} {profile.lastname}
+              </Typography>
+            )}
+            {mainUser && (
+              <IconButton onClick={() => setEditingState("nameLastName")}>
+                <Edit />
+              </IconButton>
+            )}
+          </div>
+
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            sx={{ color: "#636e72", mb: 3 }}
           >
             @{profile.username}
           </Typography>
@@ -233,56 +293,79 @@ const Profile = ({ mainUser = true }) => {
           <DetailList>
             <DetailItem>
               <ListItemIcon sx={{ minWidth: 40 }}>
-                <EmailIcon color='primary' />
+                <EmailIcon color="primary" />
               </ListItemIcon>
-              <ListItemText 
-                primary="Email" 
-                secondary={profile.email}
-              />
+              <ListItemText primary="Email" secondary={profile.email} />
             </DetailItem>
 
-            <DetailItem onDoubleClick={() => setIsEditing(true)}>
+            <DetailItem
+              onDoubleClick={
+                mainUser ? () => setEditingState("birthDate") : null
+              }
+            >
               <ListItemIcon sx={{ minWidth: 40 }}>
-                <CakeIcon color='primary' />
+                <CakeIcon color="primary" />
               </ListItemIcon>
-              {isEditing ? (
+              {isEditing.birthDate ? (
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    value={updateFields?.birthDate ? dayjs(updateFields?.birthDate) : dayjs(profile.birthDate)}
+                    value={
+                      updateFields?.birthDate
+                        ? dayjs(updateFields?.birthDate)
+                        : dayjs(profile.birthDate)
+                    }
                     onChange={(newDate) => {
-                      console.log(dayjs(newDate));
-                      setUpdateFields(prev => ({ ...prev, birthDate: `${newDate.$y}-${newDate.$M + 1}-${newDate.$D}` }))
+                      setUpdateFields((prev) => ({
+                        ...prev,
+                        birthDate: `${newDate.$y}-${newDate.$M + 1}-${
+                          newDate.$D
+                        }`,
+                      }));
                     }}
                     closeOnSelect
                   />
-                  </LocalizationProvider>
+                </LocalizationProvider>
               ) : (
                 (profile.birthDate || updateFields.birthDate) && (
-                  <ListItemText 
-                    primary="Birth Date" 
-                    secondary={`${format(new Date(updateFields.birthDate || profile.birthDate), 'd MMMM, yyyy')} (${calculateAge(updateFields.birthDate || profile.birthDate)} years)`}
+                  <ListItemText
+                    primary="Birth Date"
+                    secondary={`${format(
+                      new Date(updateFields.birthDate || profile.birthDate),
+                      "d MMMM, yyyy"
+                    )} (${calculateAge(
+                      updateFields.birthDate || profile.birthDate
+                    )} years)`}
                   />
                 )
               )}
-              <IconButton onClick={() => setIsEditing(prev => !prev)} sx={{ marginLeft: "auto" }}>
-                <Edit />
-              </IconButton>
+              {mainUser && (
+                <IconButton
+                  onClick={() => setEditingState("birthDate")}
+                  sx={{ marginLeft: "auto" }}
+                >
+                  <Edit />
+                </IconButton>
+              )}
             </DetailItem>
 
             <DetailItem>
               <ListItemIcon sx={{ minWidth: 40 }}>
-                <EventIcon color='primary' />
+                <EventIcon color="primary" />
               </ListItemIcon>
-              <ListItemText 
-                primary="Member Since" 
-                secondary={format(new Date(profile.createdAt), 'MMMM yyyy')}
+              <ListItemText
+                primary="Member Since"
+                secondary={format(new Date(profile.createdAt), "MMMM yyyy")}
               />
             </DetailItem>
           </DetailList>
 
-          {Object.values(updateFields).some(Boolean) && <Button variant='contained' onClick={save}>Save</Button>}
+          {Object.values(updateFields).some(Boolean) && (
+            <Button variant="contained" onClick={save}>
+              Save
+            </Button>
+          )}
 
-          <ProfilePostList username={username}/>
+          <ProfilePostList username={username} />
         </ProfileContent>
       </ProfileCard>
     </ProfileContainer>
