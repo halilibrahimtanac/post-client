@@ -49,14 +49,26 @@ const postMutationEndpoints = api.injectEndpoints({
       invalidatesTags: [{ type: "Post", id: "LIST" }],
     }),
     deletePost: builder.mutation({
-        query: (postId) => ({
-            url: `/api/post/delete-post/${postId}`,
-            method: "DELETE",
-            credentials: "include"
-        }),
-        invalidatesTags: [{ type: "Post", id: "LIST"}]
+      query: (postId) => ({
+        url: `/api/post/delete-post/${postId}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+      invalidatesTags: [{ type: "Post", id: "LIST" }],
+    }),
+    likePost: builder.mutation({
+      query: ({ postId, username }) => ({
+        url: `api/like/post-like?postId=${postId}&username=${username}`,
+        method: "POST",
+        credentials: "include"
+      }),
+      invalidatesTags: (result, error, arg) => {
+        console.log(arg);
+        return [{ type: "Post", id: arg.postId }]
+      }
     })
   }),
 });
 
-export const { useNewPostMutation, useDeletePostMutation } = postMutationEndpoints;
+export const { useNewPostMutation, useDeletePostMutation, useLikePostMutation } =
+  postMutationEndpoints;

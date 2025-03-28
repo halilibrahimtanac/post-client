@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -13,14 +13,19 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { constructMediaUrl } from "../../lib/utils";
-import { Comment } from "@mui/icons-material";
+import { Comment, Favorite, FavoriteBorder } from "@mui/icons-material";
+import { useLikePostMutation } from "../../store/post/mutation";
 
 const StyledCard = styled(Card)({
   maxWidth: 600,
   margin: "10px auto",
   borderRadius: 12,
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  overflow: "visible"
+  overflow: "visible",
+  transition: "transform 0.2s ease-in-out",
+  "&:hover": {
+    transform: "scale(1.02)",
+  },
 });
 
 const PostContent = styled("div")({
@@ -59,13 +64,28 @@ const Post = ({
   user,
   video,
   commentCount,
+  likeCount = 0,
   parentPost,
 }) => {
+  
   const loggedUser = useSelector((state) => state.data.user);
+  const [likePost] = useLikePostMutation();
   const navigate = useNavigate();
   const formattedDate = new Date(createdAt).toLocaleDateString();
   const imageUrl = constructMediaUrl(image);
   const videoUrl = constructMediaUrl(video);
+
+  const [liked, setLiked] = useState(false);
+
+  const likePostHandler = async (e) => {
+    e.stopPropagation();
+    try {
+      likePost({ postId: id, username: loggedUser.username });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
 
   const profileNavigate = (e) => {
     e.stopPropagation();
@@ -88,23 +108,10 @@ const Post = ({
               position: "relative",
             }}
           >
-            {/* parentPost && (
-              <Box
-                sx={{
-                  minWidth: "1px",
-                  maxWidth: "1px",
-                  height: "22px",
-                  backgroundColor: "#bdbdbd",
-                  position: "absolute",
-                  top: "-42px", // Adjust spacing above the avatar
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                }}
-              />
-            ) */}
             <Avatar
-              sx={{ bgcolor: "#1976d2" }}
+              sx={{ bgcolor: "#1976d2", cursor: "pointer" }}
               src={constructMediaUrl(user.profilePicture)}
+              onClick={profileNavigate}
             >
               {user.username[0]}
             </Avatar>
@@ -143,7 +150,18 @@ const Post = ({
       {videoUrl && isValidUrl(videoUrl) && (
         <PostMedia component="video" controls src={videoUrl} />
       )}
-      <CardActions disableSpacing>
+
+      <CardActions disableSpacing sx={{ padding: "0 16px 8px" }}>
+        <IconButton aria-label="like post" onClick={likePostHandler}>
+          {liked ? (
+            <Favorite sx={{ color: "#e91e63" }} />
+          ) : (
+            <FavoriteBorder />
+          )}
+        </IconButton>
+        <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+          {likeCount}
+        </Typography>
         <IconButton aria-label="comments">
           <Comment fontSize="small" />
         </IconButton>
