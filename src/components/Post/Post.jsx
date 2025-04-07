@@ -65,7 +65,7 @@ const Post = ({
   video,
   commentCount,
   likeCount = 0,
-  parentPost,
+  likeList,
 }) => {
   
   const loggedUser = useSelector((state) => state.data.user);
@@ -75,12 +75,10 @@ const Post = ({
   const imageUrl = constructMediaUrl(image);
   const videoUrl = constructMediaUrl(video);
 
-  const [liked, setLiked] = useState(false);
-
   const likePostHandler = async (e) => {
     e.stopPropagation();
     try {
-      likePost({ postId: id, username: loggedUser.username });
+      likePost({ postId: id });
     } catch (err) {
       console.log(err);
     }
@@ -153,7 +151,7 @@ const Post = ({
 
       <CardActions disableSpacing sx={{ padding: "0 16px 8px" }}>
         <IconButton aria-label="like post" onClick={likePostHandler}>
-          {liked ? (
+          {likeList.find(lk => lk.user.username === loggedUser.username) ? (
             <Favorite sx={{ color: "#e91e63" }} />
           ) : (
             <FavoriteBorder />

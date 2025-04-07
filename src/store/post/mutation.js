@@ -57,8 +57,8 @@ const postMutationEndpoints = api.injectEndpoints({
       invalidatesTags: [{ type: "Post", id: "LIST" }],
     }),
     likePost: builder.mutation({
-      query: ({ postId, username }) => ({
-        url: `api/like/post-like?postId=${postId}&username=${username}`,
+      query: ({ postId }) => ({
+        url: `api/like/post-like/${postId}`,
         method: "POST",
         credentials: "include"
       }),
