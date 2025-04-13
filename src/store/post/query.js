@@ -15,8 +15,7 @@ export const postQueryEndpoints = api.injectEndpoints({
         credentials: "include",
       }),
       providesTags: (result) => {
-        const tags = result?.posts ? result.posts.map((r) => ({ type: "Post", id: r.id })) : [];
-        return [...tags, { type: "Post", id: "LIST" }];
+        return [{ type: "Post", id: "LIST" }];
       },
     }),
     getUserPosts: builder.query({
@@ -44,7 +43,7 @@ export const postQueryEndpoints = api.injectEndpoints({
         credentials: "include",
       }),
       transformResponse: (responseData) => responseData.posts,
-      providesTags: (result) => tagProviderHelper(result),
+      providesTags: (result) => tagProviderHelper({ posts: result }),
     })
   }),
 });

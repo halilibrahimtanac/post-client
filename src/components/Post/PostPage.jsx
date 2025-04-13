@@ -1,27 +1,18 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import {
-  useGetPostQuery,
-  useGetRelatedPostsQuery,
-} from "../../store/post/query";
+import { useGetPostQuery } from "../../store/post/query";
 import Post from "./Post";
-import NewPost from "./NewPost";
+import RelatedPostsList from "./RelatedPostsList";
 
 const PostPage = () => {
   const { id } = useParams();
   const { data, isLoading, isError, isSuccess } = useGetPostQuery(id);
-  const {
-    data: relatedPosts,
-    isLoading: isLoading1,
-    isError: isError1,
-    refetch,
-  } = useGetRelatedPostsQuery(id);
 
-  if (isLoading && isLoading1) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (isError && isError1) {
+  if (isError) {
     return <div>Couldn't fetch.</div>;
   }
 
@@ -43,17 +34,7 @@ const PostPage = () => {
             commentCount={data._count.children}
           />
         </div>
-        <div style={{ paddingLeft: 50, boxSizing: "border-box" }}>
-          <NewPost parentPost={id} refetch={refetch} />
-          {relatedPosts?.map((p) => (
-            <Post
-              {...p}
-              likeList={p.Like}
-              likeCount={p._count.Like}
-              commentCount={p._count.children}
-            />
-          ))}
-        </div>
+        <RelatedPostsList id={id} showNewPost />
       </div>
     );
   }
