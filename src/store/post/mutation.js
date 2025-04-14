@@ -28,9 +28,20 @@ const postMutationEndpoints = api.injectEndpoints({
       invalidatesTags: (result, error, arg) => {
         return [{ type: "Post", id: arg.postId }]
       }
+    }),
+    editPost: builder.mutation({
+      query: ({ postId, editBody }) => ({
+        url: `api/post/edit/${postId}`,
+        method: "PATCH",
+        credentials: "include",
+        body: { body: editBody }
+      }),
+      invalidatesTags: (result, error, arg) => {
+        return [{ type: "Post", id: arg.postId }]
+      }
     })
   }),
 });
 
-export const { useNewPostMutation, useDeletePostMutation, useLikePostMutation } =
+export const { useNewPostMutation, useDeletePostMutation, useLikePostMutation, useEditPostMutation } =
   postMutationEndpoints;

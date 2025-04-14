@@ -9,12 +9,14 @@ import {
   CardActions,
   IconButton,
   Box,
+  TextField,
+  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { constructMediaUrl } from "../../lib/utils";
-import { Comment, Favorite, FavoriteBorder } from "@mui/icons-material";
-import { useLikePostMutation } from "../../store/post/mutation";
+import { Comment, Edit, Favorite, FavoriteBorder } from "@mui/icons-material";
+import { useEditPostMutation, useLikePostMutation } from "../../store/post/mutation";
 
 const StyledCard = styled(Card)({
   maxWidth: 600,
@@ -67,13 +69,15 @@ const Post = ({
   likeCount = 0,
   likeList,
 }) => {
-  
   const loggedUser = useSelector((state) => state.data.user);
   const [likePost] = useLikePostMutation();
+  const [editPost] = useEditPostMutation();
   const navigate = useNavigate();
   const formattedDate = new Date(createdAt).toLocaleDateString();
   const imageUrl = constructMediaUrl(image);
   const videoUrl = constructMediaUrl(video);
+
+  const [editBody, setEditBody] = useState(null);
 
   const likePostHandler = async (e) => {
     e.stopPropagation();
@@ -83,6 +87,16 @@ const Post = ({
       console.log(err);
     }
   };
+
+  const editPostHandler = async (e) => {
+    e.stopPropagation();
+    try{
+      await editPost({ postId: id, editBody });
+      setEditBody(null);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
 
   const profileNavigate = (e) => {
@@ -133,11 +147,44 @@ const Post = ({
           </Typography>
         }
         sx={{ padding: "16px 16px 8px" }}
+        {...(loggedUser.username === user.username
+          ? {
+              action: (
+                <Box sx={{ position: "relative", top: 3 }}>
+                  <IconButton
+                    color={editBody ? "info" : "default"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (editBody) {
+                        setEditBody(null);
+                        return;
+                      }
+                      setEditBody(body);
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                </Box>
+              ),
+            }
+          : {})}
       />
 
       {body && (
         <PostContent>
-          <PostText variant="body1">{body}</PostText>
+          {editBody === null ? (
+            <PostText variant="body1">{body}</PostText>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1}}>
+              <TextField
+                value={editBody}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+                onChange={(e) => setEditBody(e.target.value)}
+              />
+              <Button variant="contained" onClick={editPostHandler}>Save</Button>
+            </Box>
+          )}
         </PostContent>
       )}
 
@@ -151,13 +198,17 @@ const Post = ({
 
       <CardActions disableSpacing sx={{ padding: "0 16px 8px" }}>
         <IconButton aria-label="like post" onClick={likePostHandler}>
-          {likeList.find(lk => lk.user.username === loggedUser.username) ? (
+          {likeList.find((lk) => lk.user.username === loggedUser.username) ? (
             <Favorite sx={{ color: "#e91e63" }} />
           ) : (
             <FavoriteBorder />
           )}
         </IconButton>
-        <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{ marginRight: 2 }}
+        >
           {likeCount}
         </Typography>
         <IconButton aria-label="comments">
