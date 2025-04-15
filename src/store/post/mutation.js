@@ -30,14 +30,14 @@ const postMutationEndpoints = api.injectEndpoints({
       }
     }),
     editPost: builder.mutation({
-      query: ({ postId, editBody }) => ({
-        url: `api/post/edit/${postId}`,
+      query: (body) => ({
+        url: `api/post/edit`,
         method: "PATCH",
         credentials: "include",
-        body: { body: editBody }
+        body
       }),
       invalidatesTags: (result, error, arg) => {
-        return [{ type: "Post", id: arg.postId }]
+        return [{ type: "Post", id: "LIST" }]
       }
     })
   }),
