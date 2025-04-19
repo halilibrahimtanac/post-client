@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
   Card,
-  CardHeader,
-  CardMedia,
-  Typography,
-  Avatar,
   styled,
-  CardActions,
-  IconButton,
-  Box,
-  TextField,
-  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { constructMediaUrl } from "../../lib/utils";
-import { Comment, Edit, Favorite, FavoriteBorder, Delete } from "@mui/icons-material";
-import { useEditPostMutation, useLikePostMutation } from "../../store/post/mutation";
+import { useEditPostMutation } from "../../store/post/mutation";
+import PostHeader from "./PostComponents/PostHeader";
+import PostContent from "./PostComponents/PostContent";
+import PostMedia from "./PostComponents/PostMedia";
+import PostActions from "./PostComponents/PostActions";
 
 const StyledCard = styled(Card)({
   maxWidth: 600,
@@ -30,34 +23,6 @@ const StyledCard = styled(Card)({
   },
 });
 
-const PostContent = styled("div")({
-  padding: "0 16px 16px",
-});
-
-const PostText = styled(Typography)({
-  fontSize: "1rem",
-  lineHeight: 1.5,
-  color: "#333",
-  marginTop: 12,
-});
-
-const PostMedia = styled(CardMedia)({
-  width: "100%",
-  maxHeight: 500,
-  objectFit: "cover",
-  borderBottom: "1px solid #eee",
-  borderTop: "1px solid #eee",
-});
-
-const isValidUrl = (url) => {
-  try {
-    new URL(url);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
 const Post = ({
   id,
   body,
@@ -69,8 +34,6 @@ const Post = ({
   likeCount = 0,
   likeList,
 }) => {
-  const loggedUser = useSelector((state) => state.data.user);
-  const [likePost] = useLikePostMutation();
   const [editPost] = useEditPostMutation();
   const navigate = useNavigate();
   const formattedDate = new Date(createdAt).toLocaleDateString();
@@ -91,15 +54,6 @@ const Post = ({
       }
     };
   }, [previewUrl]);
-
-  const likePostHandler = async (e) => {
-    e.stopPropagation();
-    try {
-      likePost({ postId: id });
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const editPostHandler = async (e) => {
     e.stopPropagation();
@@ -175,188 +129,40 @@ const Post = ({
     setPreviewType(null);
   };
 
-  const profileNavigate = (e) => {
-    e.stopPropagation();
-    navigate(
-      loggedUser.username === user.username
-        ? "/profile"
-        : `/user/profile/${user.username}`
-    );
-  };
+  
 
   return (
     <StyledCard onClick={() => navigate(`/post/${id}`)}>
-      <CardHeader
-        avatar={
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            <Avatar
-              sx={{ bgcolor: "#1976d2", cursor: "pointer" }}
-              src={constructMediaUrl(user.profilePicture)}
-              onClick={profileNavigate}
-            >
-              {user.username[0]}
-            </Avatar>
-          </Box>
-        }
-        title={
-          <Typography
-            onClick={profileNavigate}
-            sx={{
-              "&:hover": { textDecoration: "underline", cursor: "pointer" },
-            }}
-            variant="subtitle1"
-            fontWeight="600"
-          >
-            {user.username}
-          </Typography>
-        }
-        subheader={
-          <Typography variant="caption" color="textSecondary">
-            {formattedDate}
-          </Typography>
-        }
-        sx={{ padding: "16px 16px 8px" }}
-        {...(loggedUser.username === user.username
-          ? {
-              action: (
-                <Box sx={{ position: "relative", top: 3 }}>
-                  <IconButton
-                    color={isEditing ? "info" : "default"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isEditing) {
-                        cancelEditHandler(e);
-                      } else {
-                        setIsEditing(true);
-                        setEditBody(body);
-                      }
-                    }}
-                  >
-                    <Edit />
-                  </IconButton>
-                </Box>
-              ),
-            }
-          : {})}
+      <PostHeader
+        user={user}
+        body={body}
+        formattedDate={formattedDate}
+        cancelEditHandler={cancelEditHandler}
+        isEditing={isEditing}
+        setEditBody={setEditBody}
+        setIsEditing={setIsEditing}
       />
 
-      <PostContent>
-        {isEditing ? (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={2}
-              value={editBody}
-              onClick={(e) => e.stopPropagation()}
-              onFocus={(e) => e.stopPropagation()}
-              onChange={(e) => setEditBody(e.target.value)}
-              placeholder="Edit your post..."
-            />
+      <PostContent
+        body={body}
+        editBody={editBody}
+        cancelEditHandler={cancelEditHandler}
+        editPostHandler={editPostHandler}
+        handleDeletePost={handleDeletePost}
+        handleFileChange={handleFileChange}
+        imageUrl={imageUrl}
+        isEditing={isEditing}
+        previewType={previewType}
+        previewUrl={previewUrl}
+        selectedFile={selectedFile}
+        setEditBody={setEditBody}
+        videoUrl={videoUrl}
+      />
 
-            {/* File Preview Area */}
-            {previewUrl && (
-              <Box sx={{ maxHeight: 300, overflow: 'hidden', display: 'flex', justifyContent: 'center', border: '1px solid #eee', borderRadius: 1, my: 1 }}>
-                {previewType === 'image' && (
-                  <img src={previewUrl} alt="Preview" style={{ display: 'block', maxWidth: '100%', maxHeight: '300px', objectFit: 'contain' }} />
-                )}
-                {previewType === 'video' && (
-                  <video controls src={previewUrl} style={{ display: 'block', maxWidth: '100%', maxHeight: '300px' }} onClick={e => e.stopPropagation()} /* Prevent card click */ />
-                )}
-              </Box>
-            )}
-             {/* Show existing media if no new preview is selected */}
-            {!previewUrl && imageUrl && isValidUrl(imageUrl) && (
-                <Box sx={{ maxHeight: 300, overflow: 'hidden', display: 'flex', justifyContent: 'center', border: '1px solid #eee', borderRadius: 1, my: 1, opacity: 0.7 }}>
-                    <PostMedia component="img" image={imageUrl} alt="Current post content" />
-                </Box>
-            )}
-            {!previewUrl && videoUrl && isValidUrl(videoUrl) && (
-                 <Box sx={{ maxHeight: 300, overflow: 'hidden', display: 'flex', justifyContent: 'center', border: '1px solid #eee', borderRadius: 1, my: 1, opacity: 0.7 }}>
-                    <PostMedia component="video" controls src={videoUrl} />
-                 </Box>
-            )}
+      {!isEditing && <PostMedia imageUrl={imageUrl} videoUrl={videoUrl} />}
 
-
-            {/* Action Buttons Row 1: Upload and Delete */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-              {/* File Input Button */}
-              <Button
-                variant="outlined"
-                component="label"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {selectedFile ? "Change Media" : "Upload Media"}
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*,video/*"
-                  onChange={handleFileChange}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </Button>
-              {/* Delete Button */}
-              <Button
-                variant="contained"
-                color="error"
-                onClick={handleDeletePost}
-                // startIcon={<Delete />}
-              >
-                Delete Post
-              </Button>
-            </Box>
-
-            {/* Action Buttons Row 2: Cancel and Save */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-              {/* Cancel Button */}
-              <Button variant="outlined" onClick={cancelEditHandler}>Cancel</Button>
-              {/* Save Button */}
-              <Button variant="contained" onClick={editPostHandler}>Save Changes</Button>
-            </Box>
-          </Box>
-        ) : (
-
-          body && <PostText variant="body1">{body}</PostText>
-        )}
-      </PostContent>
-
-
-      {!isEditing && imageUrl && isValidUrl(imageUrl) && (
-        <PostMedia component="img" image={imageUrl} alt="Post content" />
-      )}
-      {!isEditing && videoUrl && isValidUrl(videoUrl) && (
-        <PostMedia component="video" controls src={videoUrl} />
-      )}
-
-      <CardActions disableSpacing sx={{ padding: "0 16px 8px" }}>
-        <IconButton aria-label="like post" onClick={likePostHandler}>
-          {likeList.find((lk) => lk.user.username === loggedUser.username) ? (
-            <Favorite sx={{ color: "#e91e63" }} />
-          ) : (
-            <FavoriteBorder />
-          )}
-        </IconButton>
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          sx={{ marginRight: 2 }}
-        >
-          {likeCount}
-        </Typography>
-        <IconButton aria-label="comments">
-          <Comment fontSize="small" />
-        </IconButton>
-        <Typography variant="body2" color="textSecondary">
-          {commentCount}
-        </Typography>
-      </CardActions>
+      <PostActions likeList={likeList} commentCount={commentCount} likeCount={likeCount} id={id}/>
+    
     </StyledCard>
   );
 };

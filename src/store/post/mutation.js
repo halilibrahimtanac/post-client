@@ -26,7 +26,7 @@ const postMutationEndpoints = api.injectEndpoints({
         credentials: "include"
       }),
       invalidatesTags: (result, error, arg) => {
-        return [{ type: "Post", id: arg.postId }]
+        return [{ type: "Post", id: "LIST" }]
       }
     }),
     editPost: builder.mutation({
