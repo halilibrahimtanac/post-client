@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { constructMediaUrl } from "../../lib/utils";
-import { useEditPostMutation } from "../../store/post/mutation";
+import { useDeletePostMutation, useEditPostMutation } from "../../store/post/mutation";
 import PostHeader from "./PostComponents/PostHeader";
 import PostContent from "./PostComponents/PostContent";
 import PostMedia from "./PostComponents/PostMedia";
@@ -33,8 +33,10 @@ const Post = ({
   commentCount,
   likeCount = 0,
   likeList,
+  refetch
 }) => {
   const [editPost] = useEditPostMutation();
+  const [deletePost] = useDeletePostMutation();
   const navigate = useNavigate();
   const formattedDate = new Date(createdAt).toLocaleDateString();
   const imageUrl = constructMediaUrl(image);
@@ -106,7 +108,8 @@ const Post = ({
         console.log("Attempting to delete post with ID:", id);
         try {
             // TODO: Implement delete post mutation call
-            alert("Post deletion initiated (implement mutation call).");
+            await deletePost(id);
+            refetch?.();
             setIsEditing(false);
         } catch (err) {
             console.error("Failed to delete post:", err);

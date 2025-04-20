@@ -37,6 +37,7 @@ const RelatedPostsList = ({ id, showNewPost = false, depth = 0 }) => {
               likeList={p.Like}
               likeCount={p._count.Like}
               commentCount={p._count.children}
+              refetch={refetch}
             />
             {/* Recursive Call: Render related posts for *this* post (p) */}
             {p._count.children > 0 && (
